@@ -34,17 +34,14 @@ class EmotionDataset(Dataset):
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
-# Citirea datasetului
+
 df = pd.read_csv("dataset.csv")
 
-# Alegem modelul BERT și tokenizatorul
 model_name = "bert-base-uncased"
 tokenizer = BertTokenizer.from_pretrained(model_name)
 
-# Creăm dataset-ul
 dataset = EmotionDataset(df["text"].tolist(), df["label"].tolist(), tokenizer)
 
-# Împărțim datele în train/test
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
@@ -79,11 +76,9 @@ for epoch in range(epochs):
 
     print(f"Epoch {epoch+1}, Loss: {total_loss/len(train_loader):.4f}")
 
-# Salvăm modelul după antrenare
 torch.save(model.state_dict(), "bert_emotion_model.pth")
 print("Model saved successfully!")
 
-# Evaluarea modelului
 model.eval()
 
 predictions, actual_labels = [], []
@@ -101,7 +96,6 @@ with torch.no_grad():
 accuracy = accuracy_score(actual_labels, predictions)
 print(f"Accuracy: {accuracy:.4f}")
 
-# Încărcarea modelului pentru inferență
 loaded_model = BertForSequenceClassification.from_pretrained(model_name, num_labels=len(df["label"].unique()))
 loaded_model.load_state_dict(torch.load("bert_emotion_model.pth"))
 loaded_model.to(device)
